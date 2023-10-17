@@ -1,6 +1,17 @@
+import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import InputField from 'src/components/InputField/InputField'
+
+interface FormData {
+  email: string
+  password: string
+}
 
 export default function Login() {
+  const {
+    register,
+    formState: { errors }
+  } = useForm<FormData>()
   return (
     <div className='bg-orangeShopee'>
       <div className='container'>
@@ -8,15 +19,14 @@ export default function Login() {
           <div className='lg:col-span-2 lg:col-start-4'>
             <form className='my-8 p-10 rounded bg-white shadow-sm'>
               <div className='text-2xl'>Login</div>
-              <div className='mt-8'>
-                <input
-                  type='email'
-                  name='email'
-                  placeholder='Email/Phone Number/Username'
-                  className='p-3 w-full outline-none border border-gray-300 rounded-sm focus:border-gray-600 focus:shadow'
-                />
-                <div className='my-2 text-red-600 min-h-[1rem] text-sm'>Invalid email</div>
-              </div>
+              <InputField
+                name='email'
+                register={register}
+                type='email'
+                className='mt-8'
+                errorMessage={errors.email?.message}
+                placeholder='Email/Phone Number/Username'
+              />
               <div className='mt-3'>
                 <input
                   type='password'
