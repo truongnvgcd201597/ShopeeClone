@@ -5,7 +5,7 @@ export default function RegisterHeader() {
 
   return (
     <header className='px-5 h-20'>
-      <div className='max-w-7xl mx-auto px-4 h-full'>
+      <div className='container h-full'>
         <nav className='flex flex-between items-center h-full'>
           <Link to='/'>
             <svg viewBox='0 0 192 65' className='h-8 lg:h-11 fill-orangeShopee'>

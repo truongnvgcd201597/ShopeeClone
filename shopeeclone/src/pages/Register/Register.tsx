@@ -23,7 +23,7 @@ export default function Register() {
 
   return (
     <div className='bg-orangeShopee'>
-      <div className='max-w-7xl mx-auto px-4'>
+      <div className='container'>
         <div className='grid grid-cols-1 lg:grid-cols-5 lg:py-12 lg:pr-10'>
           <div className='lg:col-span-2 lg:col-start-4'>
             <form className='my-8 p-10 rounded bg-white shadow-sm' onSubmit={onSubmit}>
