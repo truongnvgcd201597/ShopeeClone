@@ -1,9 +1,12 @@
 import type { RegisterOptions, UseFormGetValues } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 type Rules = {
   [key in 'email' | 'password' | 'confirm-password']?: RegisterOptions
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getRules = (getValues?: UseFormGetValues<any>): Rules => ({
   email: {
     required: {
@@ -38,3 +41,25 @@ export const getRules = (getValues?: UseFormGetValues<any>): Rules => ({
         : undefined
   }
 })
+
+export const schema = yup.object({
+  email: yup
+    .string()
+    .required('Email is required')
+    .email()
+    .min(5, 'Minimum email length is 5 words')
+    .max(160, 'Maximum email length is 160 words'),
+  password: yup
+    .string()
+    .required('Password is required')
+    .min(6, 'Minimum password length is 6 words')
+    .max(160, 'Maximum password length is 160 words'),
+  'confirm-password': yup
+    .string()
+    .required('Password is required')
+    .min(6, 'Minimum password length is 6 words')
+    .max(160, 'Maximum password length is 160 words')
+    .oneOf([yup.ref('password')], 'Password does not match')
+})
+
+export type Schema = yup.InferType<typeof schema>
