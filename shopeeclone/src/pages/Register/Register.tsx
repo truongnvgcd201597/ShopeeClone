@@ -1,8 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation } from '@tanstack/react-query'
+import { omit } from 'lodash'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import { registerAccount } from 'src/api/auth.api'
 import InputField from 'src/components/InputField/InputField'
+import { ResponseAPI } from 'src/types/utils.types'
 import { schema, Schema } from 'src/utils/rules'
+import { isAxiosErrorUnprocessableEntityError } from 'src/utils/utils'
 
 type FormData = Schema
 
@@ -10,13 +15,36 @@ export default function Register() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors }
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
 
+  const registerAccountMutation = useMutation({
+    mutationFn: (body: Omit<FormData, 'confirm-password'>) => registerAccount(body)
+  })
+
   const onSubmit = handleSubmit((data) => {
-    console.log(data)
+    const body = omit(data, ['confirm-password'])
+    registerAccountMutation.mutate(body, {
+      onSuccess(data) {
+        console.log(data)
+      },
+      onError(error) {
+        if (isAxiosErrorUnprocessableEntityError<ResponseAPI<Omit<FormData, 'confirm-password'>>>(error)) {
+          const formError = error.response?.data.data
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof Omit<FormData, 'confirm-password'>, {
+                type: 'server',
+                message: formError[key as keyof Omit<FormData, 'confirm-password'>]
+              })
+            })
+          }
+        }
+      }
+    })
   })
 
   return (
