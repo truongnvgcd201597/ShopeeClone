@@ -1,8 +1,8 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useMatch } from 'react-router-dom'
 
 export default function RegisterHeader() {
-  const { pathname } = useLocation()
-
+  const registerMatch = useMatch('/register')
+  const isRegisterPage = Boolean(registerMatch)
   return (
     <header className='px-5 h-20'>
       <div className='container h-full'>
@@ -14,7 +14,7 @@ export default function RegisterHeader() {
               </g>
             </svg>
           </Link>
-          <div className='ml-5 mt-3 text-xl lg:text-2xl'>{pathname.includes('register') ? 'Register' : 'Login'}</div>
+          <div className='ml-5 mt-3 text-xl lg:text-2xl'>{isRegisterPage ? 'Sign Up' : 'Sign In'}</div>
         </nav>
       </div>
     </header>

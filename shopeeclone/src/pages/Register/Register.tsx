@@ -1,17 +1,23 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import { omit } from 'lodash'
+import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { registerAccount } from 'src/api/auth.api'
+import Button from 'src/components/Button'
 import InputField from 'src/components/InputField/InputField'
-import { ResponseAPI } from 'src/types/utils.types'
+import { AppContext } from 'src/contexts/app.context'
+import { ErrorResponse } from 'src/types/utils.types'
 import { schema, Schema } from 'src/utils/rules'
 import { isAxiosErrorUnprocessableEntityError } from 'src/utils/utils'
 
 type FormData = Schema
 
 export default function Register() {
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
+
   const {
     register,
     handleSubmit,
@@ -21,18 +27,32 @@ export default function Register() {
     resolver: yupResolver(schema)
   })
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const registerAccountMutation = useMutation({
-    mutationFn: (body: Omit<FormData, 'confirm-password'>) => registerAccount(body)
+    mutationFn: (body: Omit<FormData, 'confirm-password'>) => registerAccount(body),
+    onMutate: () => {
+      setIsLoading(true)
+    },
+    onSuccess: () => {
+      setIsAuthenticated(true)
+      navigate('/')
+    },
+    onSettled: () => {
+      setIsLoading(false)
+    }
   })
 
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm-password'])
     registerAccountMutation.mutate(body, {
       onSuccess(data) {
-        console.log(data)
+        setProfile(data.data.data.user)
+        setIsAuthenticated(true)
+        navigate('/')
       },
       onError(error) {
-        if (isAxiosErrorUnprocessableEntityError<ResponseAPI<Omit<FormData, 'confirm-password'>>>(error)) {
+        if (isAxiosErrorUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm-password'>>>(error)) {
           const formError = error.response?.data.data
           if (formError) {
             Object.keys(formError).forEach((key) => {
@@ -81,12 +101,14 @@ export default function Register() {
                 autoCompelete='on'
               />
               <div className='mt-3'>
-                <button
+                <Button
                   type='submit'
                   className='w-full py-[12px] bg-orange-500 text-white uppercase hover:bg-orange-600 rounded-sm'
+                  isLoading={isLoading}
+                  disabled={isLoading}
                 >
                   REGISTER
-                </button>
+                </Button>
               </div>
               <div className='mt-8 text-center'>
                 <div className='flex justify-center items-center gap-2'>

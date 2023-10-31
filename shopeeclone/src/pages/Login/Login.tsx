@@ -1,10 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
+import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { loginAccount } from 'src/api/auth.api'
+import Button from 'src/components/Button'
 import InputField from 'src/components/InputField/InputField'
-import { ResponseAPI } from 'src/types/utils.types'
+import { AppContext } from 'src/contexts/app.context'
+import { ErrorResponse } from 'src/types/utils.types'
 import { Schema, schema } from 'src/utils/rules'
 import { isAxiosErrorUnprocessableEntityError } from 'src/utils/utils'
 
@@ -12,6 +15,8 @@ type FormData = Omit<Schema, 'confirm-password'>
 const loginSchema = schema.omit(['confirm-password'])
 
 export default function Login() {
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
   const {
     register,
     setError,
@@ -20,18 +25,31 @@ export default function Login() {
   } = useForm<FormData>({
     resolver: yupResolver(loginSchema)
   })
+  const [isLoading, setIsLoading] = useState(false)
 
   const loginAccountMutation = useMutation({
-    mutationFn: (body: FormData) => loginAccount(body)
+    mutationFn: (body: FormData) => loginAccount(body),
+    onMutate: () => {
+      setIsLoading(true)
+    },
+    onSuccess: (data) => {
+      setProfile(data.data.data.user)
+      setIsAuthenticated(true)
+      navigate('/')
+    },
+    onSettled: () => {
+      setIsLoading(false)
+    }
   })
 
   const onSubmit = handleSubmit((data) => {
     loginAccountMutation.mutate(data, {
-      onSuccess(data) {
-        console.log(data)
+      onSuccess: () => {
+        setIsAuthenticated(true)
+        navigate('/')
       },
       onError(error) {
-        if (isAxiosErrorUnprocessableEntityError<ResponseAPI<FormData>>(error)) {
+        if (isAxiosErrorUnprocessableEntityError<ErrorResponse<FormData>>(error)) {
           const formError = error.response?.data.data
           if (formError) {
             Object.keys(formError).forEach((key) => {
@@ -73,12 +91,14 @@ export default function Login() {
                 />
               </div>
               <div className='mt-3'>
-                <button
+                <Button
                   type='submit'
                   className='w-full py-[12px] bg-orange-500 text-white uppercase hover:bg-orange-600 rounded-sm'
+                  isLoading={isLoading}
+                  disabled={isLoading}
                 >
                   LOGIN
-                </button>
+                </Button>
               </div>
               <div className='mt-8 text-center'>
                 <div className='flex justify-center items-center gap-2'>
