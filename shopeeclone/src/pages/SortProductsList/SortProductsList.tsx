@@ -11,7 +11,7 @@ export default function SortProductsList() {
           <button className='px-2 py-3 bg-white text-black hover:bg-slate-400 hover:text-white text-center'>
             Best seller
           </button>
-          <select className='h-11 px-4 capitalize bg-white text-black text-center text-left'>
+          <select className='h-11 px-4 capitalize bg-white text-black text-center text-left' defaultValue=''>
             <option value='' disabled>
               Price
             </option>
