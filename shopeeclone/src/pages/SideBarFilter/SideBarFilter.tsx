@@ -1,8 +1,46 @@
-import { Link } from 'react-router-dom'
-import InputField from 'src/components/InputField/InputField'
+import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import path from 'src/constants/path'
+import { QueryConfig } from '../ProductList/ProductList'
+import { Category } from 'src/types/category.type'
+import InputNumber from 'src/components/InputNumber'
+import { useForm, Controller } from 'react-hook-form'
+import { Schema, schema } from 'src/utils/rules'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { NoUndefinedField } from 'src/types/utils.types'
+interface SideBarFilterProps {
+  queryConfig: QueryConfig
+  categories: Category[]
+}
 
-export default function SideBarFilter() {
+type FormData = NoUndefinedField<Pick<Schema, 'price_max' | 'price_min'>>
+
+const priceSchema = schema.pick(['price_min', 'price_max'])
+export default function SideBarFilter({ queryConfig, categories }: SideBarFilterProps) {
+  const {
+    control,
+    watch,
+    handleSubmit,
+    trigger,
+    formState: { errors }
+  } = useForm<FormData>({
+    defaultValues: {
+      price_min: '',
+      price_max: ''
+    },
+    resolver: yupResolver(priceSchema),
+    shouldFocusError: false
+  })
+
+  const navigate = useNavigate()
+
+  const valueForm = watch()
+
+  const onSubmit = handleSubmit((data) => {
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({ ...queryConfig, price_max: data.price_max, price_min: data.price_min }).toString()
+    })
+  })
   return (
     <div className='py-4'>
       <Link to={path.home} className='flex items-center font-bold'>
@@ -34,16 +72,19 @@ export default function SideBarFilter() {
               Men Fashion
             </Link>
           </li>
-          <li className='py-2 pl-2'>
-            <Link to={path.home} className='relative px-2 '>
-              Clothes
-            </Link>
-          </li>
-          <li className='py-2 pl-2'>
-            <Link to={path.home} className='relative px-2 '>
-              Shoes
-            </Link>
-          </li>
+          {categories.map((category) => (
+            <li className='py-2 pl-2' key={category._id}>
+              <Link
+                to={{
+                  pathname: path.home,
+                  search: createSearchParams({ ...queryConfig, category: category._id }).toString()
+                }}
+                className='relative px-2 '
+              >
+                {category.name}
+              </Link>
+            </li>
+          ))}
         </ul>
         <Link to={path.home} className='flex items-center font-bold mt-2 uppercase'>
           <svg
@@ -68,23 +109,50 @@ export default function SideBarFilter() {
         <div className='bg-gray-500 my-4 h-[.8px]'></div>
         <div className='my-5'>
           <div>Price range</div>
-          <form className='mt-2'>
+          <form className='mt-2' onSubmit={onSubmit}>
             <div className='flex items-start gap-x-2'>
-              <InputField
-                name='from'
-                type='text'
-                className='grow'
-                classNameInput='p-1 w-full outline-none border border-gray-300 rounded-sm focus:border-gray-600 focus:shadow'
-                placeholder='FROM'
+              <Controller
+                control={control}
+                name='price_min'
+                render={({ field }) => {
+                  return (
+                    <InputNumber
+                      type='text'
+                      className='grow'
+                      classNameInput='p-1 w-full outline-none border border-gray-300 rounded-sm focus:border-gray-600 focus:shadow'
+                      classNameError='hidden'
+                      placeholder='FROM'
+                      {...field}
+                      onChange={(event) => {
+                        field.onChange(event)
+                        trigger('price_max')
+                      }}
+                    />
+                  )
+                }}
               />
-              <InputField
-                name='to'
-                type='text'
-                className='grow'
-                classNameInput='p-1 w-full outline-none border border-gray-300 rounded-sm focus:border-gray-600 focus:shadow'
-                placeholder='TO'
+              <Controller
+                control={control}
+                name='price_max'
+                render={({ field }) => {
+                  return (
+                    <InputNumber
+                      type='text'
+                      className='grow'
+                      classNameInput='p-1 w-full outline-none border border-gray-300 rounded-sm focus:border-gray-600 focus:shadow'
+                      classNameError='hidden'
+                      placeholder='TO'
+                      {...field}
+                      onChange={(event) => {
+                        field.onChange(event)
+                        trigger('price_min')
+                      }}
+                    />
+                  )
+                }}
               />
             </div>
+            <div className='my-2 text-red-600 min-h-[1.1rem] text-sm text-center'>{errors.price_min?.message}</div>
             <button className='w-full p-2 uppercase bg-orange-600 text-white text-sm hover:bg-orange-400 flex justify-center items-center'>
               Apply
             </button>

@@ -12,8 +12,8 @@ import { ErrorResponse } from 'src/types/utils.types'
 import { schema, Schema } from 'src/utils/rules'
 import { isAxiosErrorUnprocessableEntityError } from 'src/utils/utils'
 
-type FormData = Schema
-
+type FormData = Pick<Schema, 'email' | 'password' | 'confirm-password'>
+const registerSchema = schema.pick(['email', 'password', 'confirm-password'])
 export default function Register() {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
@@ -24,7 +24,7 @@ export default function Register() {
     setError,
     formState: { errors }
   } = useForm<FormData>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(registerSchema)
   })
 
   const [isLoading, setIsLoading] = useState(false)

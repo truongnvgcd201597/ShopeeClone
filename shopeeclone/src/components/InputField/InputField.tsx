@@ -7,31 +7,22 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register?: UseFormRegister<any>
   rules?: RegisterOptions
-  autoCompelete?: string
 }
 
 export default function InputField({
-  type,
   errorMessage,
-  placeholder,
   className,
   name,
   register,
   rules,
-  autoCompelete,
   classNameInput = 'p-3 w-full outline-none border border-gray-300 rounded-sm focus:border-gray-600 focus:shadow',
-  classNameError = 'my-2 text-red-600 min-h-[1.1rem] text-sm'
+  classNameError = 'my-2 text-red-600 min-h-[1.1rem] text-sm',
+  ...rest
 }: InputFieldProps) {
-  const registerResult = register && name ? register(name, rules) : {}
+  const registerResult = register && name ? register(name, rules) : null
   return (
     <div className={className}>
-      <input
-        type={type}
-        placeholder={placeholder}
-        autoComplete={autoCompelete}
-        className={classNameInput}
-        {...registerResult}
-      />
+      <input className={classNameInput} {...registerResult} {...rest} />
       <div className={classNameError}>{errorMessage}</div>
     </div>
   )
