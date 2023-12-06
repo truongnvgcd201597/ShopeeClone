@@ -14,9 +14,10 @@ module.exports = {
     // Disable các rule mà eslint xung đột với prettier.
     // Để cái này ở dưới để nó override các rule phía trên!.
     'eslint-config-prettier',
-    'prettier'
+    'prettier',
+    'plugin:react-hooks/recommended'
   ],
-  plugins: ['prettier'],
+  plugins: ['prettier', 'react-hooks'],
   settings: {
     react: {
       // Nói eslint-plugin-react tự động biết version của React.
@@ -52,6 +53,8 @@ module.exports = {
         printWidth: 120,
         jsxSingleQuote: true
       }
-    ]
+    ],
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn'
   }
 }

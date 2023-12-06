@@ -23,3 +23,20 @@ export function formatNumberToSocialStyle(value: number) {
     .replace('.', ',')
     .toLowerCase()
 }
+
+export const salesPriceBeforeDiscount = (price: number, discount: number) => {
+  return Math.round(((price - discount) / price) * 100) + '%'
+}
+
+const removeSpecialCharacter = (str: string) =>
+  // eslint-disable-next-line no-useless-escape
+  str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g, '')
+
+export const generateNameId = ({ name, id }: { name: string; id: string }) => {
+  return removeSpecialCharacter(name).replace(/\s/g, '-').toLowerCase() + `-i,${id}`
+}
+
+export const getIdFromNameId = (nameId: string) => {
+  const nameSplit = nameId.split('-i,')
+  return nameSplit[nameSplit.length - 1]
+}

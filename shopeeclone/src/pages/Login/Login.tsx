@@ -87,7 +87,6 @@ export default function Login() {
                   className='mt-2'
                   errorMessage={errors.password?.message}
                   placeholder='Password'
-                  autoCompelete='on'
                 />
               </div>
               <div className='mt-3'>
